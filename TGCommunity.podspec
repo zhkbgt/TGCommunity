@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGCommunity'
-  s.version          = '0.1.0'
+  s.version          = '0.1.1'
   s.summary          = 'Aaaaa'
 
 # This description is used to generate tags and improve search results.
@@ -32,7 +32,7 @@ TODO: Add long description of the pod here.aaaaa
  #   'ENABLE_BITCODE' => 'NO'
  # }
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '9.0'
 
 #  s.source_files = 'TGCommunity/Classes/**/*'
   

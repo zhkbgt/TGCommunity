@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" href="../../script/vant/index.css">
+	<link rel="stylesheet" href="../../css/custom/common.css">
+	<link rel="stylesheet" href="../../css/custom/page/vote-list.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+	<div id="app" class="community-vote" v-cloak>
+		<!-- 下拉刷新组件 -->
+		<van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
+			<!-- 投票列表 -->
+			<section class="list top">
+				<div v-for="(el, i) in top" :key="i" class="vote__panel" @click="toVoteDetail(el.id)">
+					<div class="vote__thumb">
+						<!-- <img :src="el.cover"> -->
+						<v-img :url="el.cover" err="../../image/default.png"></v-img>
+					</div>
+					<div class="vote__info">
+						<div><img src="../../icon/img_toupiao.png"></div>
+						<div class="vote__title">{{ el.title }}</div>
+						<div>{{ el.join_number }}人参与</div>
+					</div>
+				</div>
+			</section>
+			<van-list class="list others" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false"
+			 :offset="50" @load="onLoad">
+				<div v-for="(el, i) in list" :key="i" class="vote__panel hairline" @click="toVoteDetail(el.id)">
+					<div class="vote__thumb">
+						<!-- <img :src="el.cover"> -->
+						<v-img :url="el.cover" err="../../image/default.png"></v-img>
+					</div>
+					<div class="vote__info dark">
+						<div>
+							<div>投票</div>
+							<div>{{ el.join_number }}人参与</div>
+						</div>
+						<div class="vote__title dark aui-ellipsis-2">{{ el.title }}</div>
+						<div>
+							<div>{{ el.create_at | M/D/h/m-time }}</div>
+							<div>{{ el.comments }}</div>
+						</div>
+					</div>
+				</div>
+				<!-- 占位，优化上滑loading时的过渡 -->
+				<div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+				<!-- END -->
+				<div v-if="infiniteFinished" class="load-more">-- 没有更多 --</div>
+			</van-list>
+			<!-- END -->
+		</van-pull-refresh>
+		<!-- END -->
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+	function _toConsumableArray(arr) {
+		if (Array.isArray(arr)) {
+			for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+				arr2[i] = arr[i];
+			}
+			return arr2;
+		} else {
+			return Array.from(arr);
+		}
+	}
+
+	var data = {
+		top: [],
+		list: [],
+		page: 1,
+		pageCount: 10,
+		refreshLoading: false,
+		infiniteLoading: false,
+		infiniteFinished: false
+	};
+
+	var vm = new Vue({
+		el: '#app',
+		data: data,
+		methods: {
+			fetchData: function fetchData() {
+				var _this = this;
+
+				$ajax_post('appvote/vote_list', {
+					page: this.page,
+					page_count: this.pageCount
+				}, function (res) {
+					if (_this.page === 1) {
+						// 重置数据
+						_this.top = [];
+						_this.list = [];
+
+						var list = [].concat(_toConsumableArray(res.vote_list));
+
+						if (list.length < 3) _this.top = [].concat(_toConsumableArray(list));
+						else {
+							_this.top = list.splice(0, 3);
+							_this.list = [].concat(_toConsumableArray(list));
+						}
+
+						_this.refreshLoading = false; // 关闭下拉刷新效果
+					} else {
+						res.vote_list.forEach(function (el) {
+							_this.list.push(el);
+						});
+
+						_this.infiniteLoading = false; // 控制加载结束
+						if (res.bottom_key) _this.infiniteFinished = true; // 已是最后一页
+					}
+
+					console.log(JSON.stringify(_this.top));
+					console.log(JSON.stringify(_this.list));
+				}, {
+					hideLoading: true
+				});
+			},
+			init: function init() {
+				this.refreshLoading = true; // 开启下拉刷新效果
+				this.fetchData();
+			},
+			onRefresh: function onRefresh() {
+				// 刷新所有数据
+				this.page = 1;
+				this.fetchData();
+			},
+			onLoad: function onLoad() {
+				// 根据页码获取数据
+				this.page++;
+				this.fetchData();
+			},
+			toVoteDetail: function toVoteDetail(id) {
+				console.log(id);
+				api.openWin({
+					name: 'vote_detail_win',
+					url: '../vote_detail/vote_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id
+					}
+				});
+			}
+		}
+	});
+
+	apiready = function apiready() {
+		vm.init();
+		$api.css(document.querySelector('.van-pull-refresh'), 'min-height: ' + api.frameHeight + 'px');
+	};
+</script>
+
+</html>

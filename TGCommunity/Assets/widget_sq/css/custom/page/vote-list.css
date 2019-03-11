@@ -1,0 +1,90 @@
+/* 
+ * 投票列表页样式
+ */
+
+.community-vote {
+  background: #fff;
+}
+
+.others .vote__panel {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: .75rem;
+}
+
+.others .vote__thumb {
+  flex: 1;
+  height: 90px;
+}
+
+.others .vote__thumb img {
+  height: 100%;
+  max-height: 100%;
+}
+
+.others .vote__info {
+  flex: 2;
+  padding-left: .5rem;
+  /* line-height: 1.5rem; */
+  font-size: .65rem;
+}
+
+.others .vote__info>div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.others .vote__info>div:first-child,
+.others .vote__info>div:last-child {
+  color: #999;
+}
+
+.others .vote__title {
+  padding: .5rem 0;
+}
+
+.top .vote__panel {
+  position: relative;
+}
+
+.top .vote__thumb {
+  width: 100%;
+}
+
+.top .vote__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .4);
+  font-size: .65rem;
+  color: #fff;
+}
+
+.top .vote__info div:first-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: .75rem;
+  width: 78px;
+  height: 78px;
+}
+
+.top .vote__title {
+  margin: 0 auto .5rem;
+  max-width: 60%;
+  font-size: .75rem;
+}
+
+.top .vote__info div {
+  text-align: center;
+}
+
+.vote__thumb img {
+  width: 100%;
+}

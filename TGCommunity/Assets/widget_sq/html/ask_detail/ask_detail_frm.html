@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/ask-detail.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <!-- 话题信息 -->
+    <section class="ask-info">
+      <!-- 封面 -->
+      <div class="ask-info__cover">
+        <!-- <img :src="ask.cover"> -->
+        <v-img :url="ask.cover" err="../../image/default.png"></v-img>
+      </div>
+      <!-- 标题 -->
+      <div class="ask-info__title dark">{{ ask.title }}</div>
+      <!-- 嘉宾 -->
+      <div class="ask-info__author">嘉宾：{{ author.user_name }}</div>
+      <!-- 时间 -->
+      <div class="ask-info__time flex-between">
+        <div>{{ ask.create_at | Y/M/D-time }}</div>
+        <div>话题{{ ask.time_title }}</div>
+      </div>
+      <!-- 内容 -->
+      <div class="ask-info__content">
+        <div class="ask-info__content-text collapse-content" v-html="ask.context"></div>
+        <div class="collapse-icon" @click="onCollapseToggle($event)">
+          <i class="aui-iconfont aui-icon-down"></i>
+        </div>
+      </div>
+    </section>
+    <!-- END -->
+    <!-- 发言按钮 -->
+    <section class="ask-submit" @click="isShowInput = !isShowInput">我要发言</section>
+    <!-- END -->
+    <!-- 发言列表 -->
+    <section class="ask-speech">
+      <div class="ask-speech__head flex-between">
+        <ul class="ask-speech__head-nav">
+          <li :class="{'active': active === i}" v-for="(nav, i) in navs" :key="i" @click="onNavChange(i)">{{ nav.title
+            }}</li>
+        </ul>
+        <!-- <div>共有{{ ask.speeches }}条发言，其中{{ ask.reply_speech }}条被回应</div> -->
+      </div>
+      <van-list class="ask-speech__list list top-hairline" v-model="infiniteLoading" :finished="infiniteFinished"
+        :immediate-check="false" :offset="50" @load="onLoad">
+        <div v-for="(el, i) in speech_list" :key="i" class="ask-speech__panel">
+          <!-- 发言内容 -->
+          <div class="ask-speech__info">
+            <div class="flex-between">
+              <div class="ask-speech__user">
+                <div class="ask-speech__user-avatar">
+                  <!-- <img :src="el.user_info.head_pic ? el.user_info.head_pic : '../../image/avatar.png'"> -->
+                  <v-img :url="el.user_info.head_pic" err="../../image/avatar.png"></v-img>
+                </div>
+                <div class="ask-speech__user-name dark">{{ el.user_info.member_nickname }}</div>
+              </div>
+              <div class="ask-speech__user-icon">
+                <span v-show="el.follow_number !== 0">{{ el.follow_number }}</span>
+                <img :src="el.is_follow ? '../../icon/icon_eye_green.png' : '../../icon/icon_eye_green_out.png'" @click="fnFollow(i)">
+              </div>
+            </div>
+            <div class="ask-speech__follow" v-if="el.follow_info_string">{{ el.follow_info_string }}</div>
+            <div class="ask-speech__content">
+              <div class="ask-speech__content-text collapse-content gray">{{ el.comment }}</div>
+              <div class="collapse-icon" @click="onCollapseToggle($event)">
+                <i class="aui-iconfont aui-icon-down"></i>
+              </div>
+            </div>
+            <div class="ask-speech__time">{{ el.timestamp | M/D/h/m-time }}</div>
+          </div>
+          <!-- END -->
+          <!-- 嘉宾回复 -->
+          <div class="ask-speech__reply top-hairline" v-if="el.is_answer">
+            <div class="flex-between">
+              <div class="ask-speech__user">
+                <div class="ask-speech__user-avatar">
+                  <!-- <img :src="el.author_answer.author.avatar ? el.author_answer.author.avatar : '../../image/avatar.png'"> -->
+                  <v-img :url="el.author_answer.author.avatar" err="../../image/avatar.png"></v-img>
+                </div>
+                <div class="ask-speech__user-name dark">{{ el.author_answer.author.user_name }}</div>
+              </div>
+              <div class="ask-speech__user-icon">
+                <span v-show="el.author_answer.like_number !== 0">{{ el.author_answer.like_number }}</span>
+                <img :src="el.author_answer.is_like ? '../../icon/icon_like_green.png' : '../../icon/icon_like_green_out.png'"
+                  @click="fnLike(i)">
+              </div>
+            </div>
+            <div class="ask-speech__follow" v-if="el.author_answer.answer_like_string">{{
+              el.author_answer.answer_like_string }}</div>
+            <div class="ask-speech__content">
+              <div class="ask-speech__content-text collapse-content dark">{{ el.author_answer.answer }}</div>
+              <div class="collapse-icon" @click="onCollapseToggle($event)">
+                <i class="aui-iconfont aui-icon-down"></i>
+              </div>
+            </div>
+            <div class="ask-speech__time flex-between">
+              <div>{{ el.author_answer.timestamp | M/D/h/m-time }}</div>
+              <!-- <div>回复</div> -->
+            </div>
+            <!-- 对嘉宾的回复 -->
+            <!-- <div class="ask-speech__reply-answer" v-if="el.reply.answer_list.length">
+              <div v-for="(ans, j) in el.reply.answer_list" :key="j" class="ask-speech__reply-answer-panel hairline">
+                <div class="ask-speech__reply-answer-name">{{ans.user_nickname}}</div>
+                <div class="ask-speech__reply-answer-name" v-else>{{ ans.user_nickname }}<span>回复了</span>{{ ans.listen_nickname}}</div>
+                <div class="ask-speech__reply-answer-content dark">{{ ans.answer }}</div>
+                <div class="flex-between">
+                  <div>{{ ans.create_at | M/D/h/m-time }}</div>
+                  <div>回复</div>
+                </div>
+              </div>
+            </div> -->
+            <!-- END -->
+          </div>
+          <!-- END -->
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+        <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+        <!-- END -->
+        <div v-if="speech_list.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+      </van-list>
+    </section>
+    <!-- END -->
+    <!-- 底部弹出层: 发言输入框 -->
+    <van-popup class="comment__answer-input" v-model="isShowInput" position="bottom" :overlay="true">
+      <div class="activity-input__body">
+        <textarea class="gray" v-model="message" placeholder="输入您的发言..."></textarea>
+      </div>
+      <div class="activity-input__foot flex-between">
+        <div class="activity-input__notice"><span v-show="isShowNotice">{{ notice }}</span></div>
+        <div class="btn-submit" @click="onSubmit">发言</div>
+      </div>
+    </van-popup>
+    <!-- END -->
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    active: 0,
+    navs: [{
+      title: '最热',
+      val: 0
+    }, {
+      title: '最新',
+      val: 1
+    }],
+    ask: {},
+    author: {},
+    speech_list: [],
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+    message: '',
+    notice: '',
+    isShowNotice: false,
+    isShowInput: false
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    /* watch: {
+      isShowInput() {
+        if (!this.isShowInput) {
+          this.message = '';
+          this.notice = '';
+          this.isShowNotice = false;
+        }
+      }
+    }, */
+    methods: {
+      fetchProps: function fetchProps() {
+        this.ask = _extends({}, api.pageParam.ask);
+        this.author = _extends({}, api.pageParam.author);
+        this.speech_list = [].concat(_toConsumableArray(api.pageParam.speeches.question_list));
+        this.infiniteFinished = Boolean(api.pageParam.speeches.bottom_key);
+      },
+      fetchSpeeches: function fetchSpeeches() {
+        var _this = this;
+
+        $ajax_post('appask/ask_comment_list', {
+          user_id: 100000,
+          ask_id: this.ask.id,
+          page: this.page,
+          page_count: 10,
+          key: this.active
+        }, function (res) {
+          res.question_list.forEach(function (el) {
+            _this.speech_list.push(el);
+          });
+
+          _this.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) _this.infiniteFinished = true; // 已是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+      },
+      onLoad: function onLoad() {
+        this.page++;
+        this.fetchSpeeches();
+      },
+      fnFollow: function fnFollow(i) {
+        this.speech_list[i].is_follow ? this.onCancelFollow(i) : this.onFollow(i);
+      },
+      onFollow: function onFollow(i) {
+        var _this2 = this;
+
+        $ajax_post('appask/follow_question', {
+          user_id: 100000,
+          question_id: this.speech_list[i].id
+        }, function () {
+          _this2.speech_list[i].is_follow = 1;
+          _this2.speech_list[i].follow_number++;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelFollow: function onCancelFollow(i) {
+        var _this3 = this;
+
+        $ajax_post('appask/cnacle_follow_question', {
+          user_id: 100000,
+          question_id: this.speech_list[i].id
+        }, function () {
+          _this3.speech_list[i].is_follow = 0;
+          _this3.speech_list[i].follow_number--;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnLike: function fnLike(i) {
+        this.speech_list[i].author_answer.is_like ? this.onCancelLike(i) : this.onLike(i);
+      },
+      onLike: function onLike(i) {
+        var _this4 = this;
+
+        $ajax_post('appask/answer_like', {
+          user_id: 100000,
+          answer_id: this.speech_list[i].author_answer.id
+        }, function () {
+          _this4.speech_list[i].author_answer.is_like = 1;
+          _this4.speech_list[i].author_answer.like_number++;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelLike: function onCancelLike(i) {
+        var _this5 = this;
+
+        $ajax_post('appask/cancle_answer_like', {
+          user_id: 100000,
+          answer_id: this.speech_list[i].author_answer.id
+        }, function () {
+          _this5.speech_list[i].author_answer.is_like = 0;
+          _this5.speech_list[i].author_answer.like_number--;
+        }, {
+          hideLoading: true
+        });
+      },
+      onNavChange: function onNavChange(i) {
+        this.active = i;
+
+        // 数据重置
+        this.page = 0;
+        this.infiniteLoading = false, this.infiniteFinished = false, this.speech_list = [];
+
+        // 导航改变，重新获取发言列表
+        // this.fetchSpeeches();
+      },
+      onCollapseToggle: function onCollapseToggle(e) {
+        var currentTarget = e.currentTarget; // 绑定当前触发时间的div(包裹icon)
+        var target = e.currentTarget.previousElementSibling; // 需要展开/折叠的DOM
+        // console.log(target)
+
+        var res = target.classList.toggle('unclasp'); // 切换class 并返回切换结果, true-展开, false-折叠
+
+        // console.log(res)
+
+        if (res) {
+          currentTarget.innerHTML = '<i class="aui-iconfont aui-icon-top"></i>';
+        } else {
+          currentTarget.innerHTML = '<i class="aui-iconfont aui-icon-down"></i>';
+        }
+      },
+      msgValidator: function msgValidator() {
+        var len = $api.trim(this.message).length;
+
+        if (len === 0) {
+          this.notice = '内容不能为空';
+          this.isShowNotice = true;
+          return false;
+        } else if (len > 0 && len < 5) {
+          this.notice = '至少输入5个字';
+          this.isShowNotice = true;
+          return false;
+        }
+
+        return true;
+      },
+      onSubmit: function onSubmit() {
+        var _this6 = this;
+
+        var isValid = this.msgValidator();
+
+        if (isValid) {
+          console.log($api.trim(this.message));
+
+          $ajax_post('appask/ask_question', {
+            user_id: 100000,
+            ask_id: this.ask.id,
+            content: $api.trim(this.message)
+          }, function (res) {
+            _this6.message = '';
+            _this6.notice = '';
+            _this6.isShowNotice = false;
+
+            _this6.speech_list.unshift(res.question_info);
+            _this6.isShowInput = false;
+
+            api.toast({
+              msg: '发言成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+          });
+        }
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+  };
+</script>
+
+</html>

@@ -1,0 +1,173 @@
+/* 
+ * 投票详情页样式
+ */
+
+.container {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.vote-cover {
+  position: relative;
+}
+
+.vote-cover>div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: .75rem;
+  width: 78px;
+  height: 78px;
+}
+
+.vote-info {
+  margin-bottom: 1rem;
+  font-size: .7rem;
+  color: #999;
+}
+
+.vote-info,
+.vote-content {
+  padding: 0 .5rem;
+}
+
+.vote-info__title {
+  padding-top: .5rem;
+  font-size: .9rem;
+}
+
+.vote-info .flex-between {
+  padding: .25rem 0;
+}
+
+.vote-info__desc {
+  display: inline-block;
+  margin-left: .5rem;
+  padding: 0 4px;
+  background-color: #8ac7d6;
+  border-radius: .2rem;
+  line-height: inherit;
+  font-size: .6rem;
+  color: #ffffff;
+  vertical-align: 1px;
+}
+
+.vote-prepare {
+  text-align: center;
+}
+
+.vote-prepare img {
+  display: inline-block;
+}
+
+.vote-content {
+  padding: .5rem .75rem;
+}
+
+.vote-content__panel {
+  display: flex;
+}
+
+.vote-content__panel:not(:last-child) {
+  margin-bottom: .75rem;
+}
+
+.vote-content__panel-circle {
+  margin-right: 1rem;
+  height: 100px;
+}
+
+.vote-content__panel-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.vote-content__panel-title {
+  font-size: .7rem;
+  color: #999;
+}
+
+.vote-content__panel-rate {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.vote-content__notice {
+  margin-top: 1rem;
+  font-size: .75rem;
+  color: #df4126;
+}
+
+.vote-content__btn {
+  margin-top: 1rem;
+  background-color: #ec4753;
+  text-align: center;
+  line-height: 2rem;
+  color: #ffffff;
+}
+
+.vote-content__btn:active {
+  background-color: #bf3842;
+}
+
+.vote-input,
+.vote-comments {
+  padding: .5rem .75rem;
+  background-color: #fff;
+}
+
+.vote-input {
+  margin: .75rem 0;
+}
+
+.vote-content__options {
+  margin-top: 1rem;
+}
+
+.vote-content__options-item {
+  display: block;
+  position: relative;
+  padding: .75rem;
+  border: 1px solid #b9b9b9;
+  font-size: .75rem;
+}
+
+.vote-content__options-item.active {
+  box-shadow: 0 0 4px 1px #ec4753;
+}
+
+.vote-content__options-item:not(:last-child) {
+  margin-bottom: .75rem;
+}
+
+.vote-content__options-item input {
+  position: absolute;
+  z-index: -9999;
+}
+
+/* 自定义组件pie样式 */
+.pie {
+  width: 100px;
+  height: 100px;
+}
+
+.pie svg {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  transform: rotate(-90deg);
+}
+
+.pie.active svg {
+  background-color: #e6a5aa;
+}
+
+.pie__circle {
+  fill: #f0f0f0;
+  stroke: #dbdbdb;
+}
+
+.pie.active .pie__circle {
+  fill: #e6a5aa;
+  stroke: #ec4753;
+}

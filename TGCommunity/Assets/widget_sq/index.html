@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="./css/aui/aui.css" />
+	<link rel="stylesheet" href="./css/custom/common.css">
+	<style>
+		.aui-bar-nav > .aui-bar-btn {
+	  width: 65%;
+	}
+	.aui-bar-nav .aui-bar-btn-item {
+	  border-left-width: 0;
+	  border-right-width: 0;
+	  border-color: #ec4753;
+	  color: #ec4753;
+	}
+	.aui-bar-nav .aui-bar-btn-item:first-child {
+	  border-left-width: 1px;
+	  border-top-left-radius: .7rem;
+	  border-bottom-left-radius: .7rem;
+	}
+	.aui-bar-nav .aui-bar-btn-item:first-child.aui-active {
+	  border-left-width: 0;
+	}
+	.aui-bar-nav .aui-bar-btn-item:last-child {
+	  border-right-width: 1px;
+	  border-top-right-radius: .7rem;
+	  border-bottom-right-radius: .7rem;
+	}
+	.aui-bar-nav .aui-bar-btn-item:last-child.aui-active {
+	  border-right-width: 0;
+	}
+	.aui-bar-nav .aui-bar-btn-item.aui-active {
+	  color: #fff;
+	}
+	.aui-bar-nav .aui-bar-btn-item.aui-active div {
+	  border-radius: .7rem;
+	  background: #ec4753;
+	}
+  </style>
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<header class="aui-bar aui-bar-nav" style="background: #fff;">
+			<div class="aui-bar aui-bar-btn">
+				<div v-for="(el, i) in tab" :key="i" class="aui-bar-btn-item" :class="{'aui-active': active === i}" @click="onChangeTab(i)">
+					<div>{{ el }}</div>
+				</div>
+			</div>
+		</header>
+	</div>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script src="./script/vue/vue.js"></script>
+<script type="text/javascript">
+	var data = {
+		active: 0,
+		tab: ['活动', '投票', '好问']
+	};
+
+	var vm = new Vue({
+		el: '#app',
+		data: data,
+		methods: {
+			initAC: function initAC() {
+				var _this = this;
+
+				api.parseTapmode();
+
+				var header = $api.dom('header');
+
+				$api.fixStatusBar(header);
+
+				api.openFrameGroup({
+					name: 'tab_community',
+					scrollEnabled: true,
+					rect: {
+						marginTop: $api.offset(header).h,
+						w: 'auto',
+						h: api.winHeight - $api.offset(header).h
+					},
+					preload: 0,
+					index: 0,
+					frames: [{
+						name: 'community_activity_frm',
+						url: './html/community/community_activity_frm.html'
+					}, {
+						name: 'community_vote_frm',
+						url: './html/community/community_vote_frm.html'
+					}, {
+						name: 'community_ask_frm',
+						url: './html/community/community_ask_frm.html'
+					}]
+				}, function (ret, err) {
+					if (ret) {
+						_this.active = ret.index;
+					}
+				});
+			},
+			init: function init() {
+				this.initAC();
+			},
+			onChangeTab: function onChangeTab(i) {
+				this.active = i;
+
+				api.setFrameGroupIndex({
+					name: 'tab_community',
+					index: i,
+					scroll: true
+				});
+			}
+		}
+	});
+
+	apiready = function apiready() {
+		api.setStatusBarStyle({
+			style: 'dark',
+			color: 'rgba(0, 0, 0, 0)'
+		});
+
+		vm.init();
+	};
+
+	function onCloseWin() {
+		api.closeWin();
+	}
+</script>
+
+</html>

@@ -1,0 +1,79 @@
+/* 
+ * 好问列表样式
+ */
+
+.ask {
+  background: #fff;
+}
+
+.ask__panel {
+  position: relative;
+  margin-top: .75rem;
+  padding-bottom: 1rem;
+  background: #fff;
+}
+
+.ask__panel:first-child {
+  margin-top: 0;
+}
+
+.ask__panel.hairline:not(:last-child)::after {
+  border-color: #c7cdd4;
+  border-bottom-width: 1px;
+}
+
+.ask__thumb {
+  position: relative;
+}
+
+.ask__thumb>div {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 0 .75rem;
+  background: #5bbca9;
+  line-height: 1.5rem;
+  font-size: .65rem;
+  color: #fff;
+}
+
+.ask__info {
+  padding: 0 .75rem;
+  font-size: .65rem;
+}
+
+.ask__info .cell {
+  padding: .5rem 0;
+}
+
+.ask__avatar {
+  margin-right: .75rem;
+  width: 48px;
+  height: 48px;
+}
+
+.ask__avatar img {
+  max-height: 100%;
+  border-radius: 50%;
+}
+
+.ask__nickname {
+  font-size: .65rem;
+}
+
+.ask__title {
+  font-size: .8rem;
+}
+
+/* .dropdown {
+
+		}
+		.dropdown .cell__title span {
+			margin-left: .75rem;
+			padding-left: .75rem;
+			border-left: 4px solid #ec4753;
+			font-size: .75rem;
+		}
+		.dropdown .cell__value {
+			width: .75rem;
+		} */

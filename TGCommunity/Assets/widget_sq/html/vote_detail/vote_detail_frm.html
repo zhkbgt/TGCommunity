@@ -1,0 +1,447 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/comments.css">
+  <link rel="stylesheet" href="../../css/custom/page/vote-detail.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container" v-cloak>
+    <!-- 封面图 -->
+    <header class="vote-cover">
+      <div><img src="../../icon/img_toupiao.png"></div>
+      <!-- <img :src="vote.cover"> -->
+      <v-img :url="vote.cover" err="../../image/default.png"></v-img>
+    </header>
+    <!-- END -->
+    <!-- 投票信息 -->
+    <section class="vote-info">
+      <div class="vote-info__title dark">{{ vote.title }}<span class="vote-info__desc">{{ vote.status_title }}</span></div>
+      <div class="flex-between">
+        <div>{{ vote.create_at | time }}</div>
+        <div>参与人数: <span class="red">{{ vote.join_number }}</span></div>
+      </div>
+      <!-- <div>{{ info.simple }} (题图来自: {{ info.originator }})</div> -->
+    </section>
+    <!-- END -->
+    <!-- 投票内容 -->
+    <section class="vote-content">
+      <div class="vote-prepare gray" v-if="vote.status === 0">
+        <img src="../../icon/no_comments.png">
+        <p>投票暂未开始~</p>
+      </div>
+
+      <div v-else>
+        <div v-if="!vote.is_vote && vote.status === 1">
+          <div v-if="vote.is_multi">
+            <p>（多选不限个数）</p>
+            <div class="vote-content__options">
+              <label v-for="(el, i) in vote.option_list" :key="i" class="vote-content__options-item dark" :class="{'active': selected.indexOf(el.id) !== -1}">
+                <input type="checkbox" :value="el.id" v-model="selected">{{el.opinion}}
+              </label>
+            </div>
+          </div>
+          <div v-else>
+            <p>（单选）</p>
+            <div class="vote-content__options">
+              <label v-for="(el, i) in vote.option_list" :key="i" class="vote-content__options-item dark" :class="{'active': selected === el.id}">
+                <input type="radio" :value="el.id" v-model="selected">{{el.opinion}}
+              </label>
+            </div>
+          </div>
+          <div class="vote-content__notice" v-show="isShowVoteNotice">请先给出投票！</div>
+          <div class="vote-content__btn" @click="onVote">投票</div>
+        </div>
+        <div v-else>
+          <div v-for="(el, i) in vote.option_list" :key="i" class="vote-content__panel">
+            <div class="vote-content__panel-circle">
+              <pie :precent="el.percent_end" :active="Boolean(el.this_vote)"></pie>
+            </div>
+            <div class="vote-content__panel-info">
+              <div class="vote-content__panel-title">{{ el.opinion }}</div>
+              <div class="vote-content__panel-rate dark">{{ el.percent_end }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- END -->
+    <!-- 评论区 -->
+    <section v-if="vote.status !== 0">
+      <div class="vote-input">
+        <div class="detail-input__body">
+          <textarea class="gray" v-model="message" placeholder="输入你的发言..."></textarea>
+        </div>
+        <div class="detail-input__foot flex-between">
+          <div class="detail-input__notice"><span v-show="isShowNotice">{{ notice }}</span></div>
+          <div class="btn-submit" @click="onSubmit">我要发言</div>
+        </div>
+      </div>
+
+      <div class="vote-comments">
+        <div class="comments__head flex-between">
+          <div>大家的态度</div>
+          <div>{{ vote.comments }}条</div>
+        </div>
+        <van-list class="vote-comments__list list" v-model="infiniteLoading" :finished="infiniteFinished"
+          :immediate-check="false" :offset="50" @load="onLoad">
+          <div v-for="(el, i) in comments" :key="i" class="comment__panel hairline">
+            <div class="comment__user">
+              <div class="comment__user-avatar">
+                <!-- <img :src="el.head_pic ? el.head_pic : '../../image/avatar.png'"> -->
+                <v-img :url="el.head_pic" err="../../image/avatar.png"></v-img>
+              </div>
+              <div class="comment__user-name">{{ el.user_nickname }}</div>
+            </div>
+            <div class="comment__content dark">{{ el.comment }}</div>
+            <div class="comment__param flex-between">
+              <div>{{ el.timestamp | M/D/h/m-time }}</div>
+              <div class="comment__fn"><span :class="{'red': el.is_like}" @click="fnLike(i)">赞</span>({{ el.like_number
+                }})<span @click="fnShowReplyInput(i, el.id)">回复</span>({{
+                el.answer_list.length }})</div>
+            </div>
+            <div class="comment__answer" v-if="el.answer_list.length">
+              <div v-for="(ans, j) in el.answer_list" :key="j" class="comment__answer-panel hairline">
+                <div class="comment__answer-name" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname}}</div>
+                <div class="comment__answer-name" v-else>{{ ans.user_nickname }}<span>回复了</span>{{ ans.listen_nickname }}</div>
+                <div class="comment__answer-content dark">{{ ans.answer }}</div>
+                <div class="flex-between">
+                  <div>{{ ans.create_at | M/D/h/m-time }}</div>
+                  <div @click="fnShowReplyInput(i, el.id, ans.user_id)">回复</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 占位，优化上滑loading时的过渡 -->
+          <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+          <!-- END -->
+          <div v-if="comments.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+        </van-list>
+      </div>
+    </section>
+    <!-- END -->
+    <!-- 底部弹出层: 回复评论输入框 -->
+    <van-popup class="comment__answer-input" v-model="isShowReplyInput" position="bottom" :overlay="true">
+      <div class="detail-input__body">
+        <textarea class="gray" v-model="reply" placeholder="输入回复..."></textarea>
+      </div>
+      <div class="detail-input__foot flex-between">
+        <div class="detail-input__notice"><span v-show="isShowReplyNotice">{{ replyNotice }}</span></div>
+        <div class="btn-submit" @click="onCommentReply">回复</div>
+      </div>
+    </van-popup>
+    <!-- END -->
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    comments: [],
+    vote: {},
+    selected: [], // 记录已选择的投票选项
+    isShowVoteNotice: false,
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+    message: '',
+    notice: '',
+    isShowNotice: false,
+    reply: '',
+    replyNotice: '',
+    isShowReplyInput: false,
+    isShowReplyNotice: false,
+    replyParams: {
+      index: null,
+      comment_id: null,
+      listen_id: null // 回复评论所依赖参数
+    }
+  };
+  var tianmaModule;
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    watch: {
+      isShowReplyInput: function isShowReplyInput() {
+        if (!this.isShowReplyInput) {
+          this.reply = '';
+          this.replyNotice = '';
+          this.isShowReplyNotice = false;
+        }
+      },
+      selected() {
+        this.isShowVoteNotice = false;
+      }
+    },
+    methods: {
+      fetchProps: function fetchProps() {
+        this.vote = _extends({}, api.pageParam.vote);
+        this.comments = [].concat(_toConsumableArray(api.pageParam.comments.comment_list));
+        this.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
+      },
+      fetchComments: function fetchComments() {
+        var _this = this;
+
+        $ajax_post('appcomment/comment_list', {
+          user_id: 100000,
+          type: 4,
+          id: this.vote.id,
+          page: this.page,
+          page_count: this.pageCount
+        }, function (res) {
+          res.comment_list.forEach(function (el) {
+            _this.comments.push(el);
+          });
+
+          _this.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) _this.infiniteFinished = true; // 已是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+      },
+      onLoad: function onLoad() {
+        this.page++;
+        this.fetchComments();
+      },
+      onVote() {
+        let isValid = this.fnVoteValidator();
+        console.log(isValid)
+
+        if (isValid) {
+          // 投票接口
+          console.log(this.selected)
+
+          $ajax_post('appvote/make_vote', {
+            user_id: 100000,
+            vote_id: this.vote.id,
+            op_id: this.selected.toString(),
+          }, res => {
+            var { option_list } = res;
+
+            this.vote.option_list = [...option_list];
+
+            this.$nextTick(function () {
+              this.vote.is_vote = 1;
+              api.toast({
+                msg: '投票成功',
+                duration: 2000,
+                location: 'middle'
+              });
+            });
+          });
+        } else {
+          this.isShowVoteNotice = true;
+        }
+      },
+      fnVoteValidator() {
+        // 单选情况selected类型为Number，多选情况下为Object
+        if (typeof this.selected === 'object') {
+          return Boolean(this.selected.length);
+        } else {
+          // 只有已选择过单选项selected才会更改为Number类型。此时，必有一个选项已选中
+          return true;
+        }
+      },
+      fnLike: function fnLike(i) {
+        this.comments[i].is_like ? this.onCancelLike(i) : this.onLike(i);
+      },
+      onLike: function onLike(i) {
+        var _this2 = this;
+
+        $ajax_post('appcomment/comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this2.comments[i].is_like = 1;
+          _this2.comments[i].like_number++;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelLike: function onCancelLike(i) {
+        var _this3 = this;
+
+        $ajax_post('appcomment/cancle_comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this3.comments[i].is_like = 0;
+          _this3.comments[i].like_number--;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnShowReplyInput: function fnShowReplyInput(index, cId) {
+        var lId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        this.isShowReplyInput = true;
+
+        this.replyParams.index = index;
+        this.replyParams.comment_id = cId;
+        this.replyParams.listen_id = lId;
+      },
+      replyValidator: function replyValidator() {
+        var len = $api.trim(this.reply).length;
+
+        if (len === 0) {
+          this.replyNotice = '内容不能为空';
+          this.isShowReplyNotice = true;
+          return false;
+        } else if (len > 0 && len < 5) {
+          this.replyNotice = '至少输入5个字';
+          this.isShowReplyNotice = true;
+          return false;
+        }
+
+        return true;
+      },
+      onCommentReply: function onCommentReply() {
+        var _this4 = this;
+
+        var isValid = this.replyValidator();
+
+        if (isValid) {
+          $ajax_post('appcomment/answer_comment', {
+            user_id: 100000,
+            news_id: this.vote.id,
+            comment_id: this.replyParams.comment_id,
+            listen_id: this.replyParams.listen_id,
+            type: 4,
+            content: $api.trim(this.reply)
+          }, function (res) {
+            _this4.isShowReplyInput = false; // 关闭弹出层
+
+            // 数据重置
+            _this4.reply = '';
+            _this4.replyNotice = '';
+            _this4.isShowReplyNotice = false;
+
+            // 评论数据回写
+            _this4.comments[_this4.replyParams.index].answer_list.push(res.comment_info);
+            _this4.vote.comments++;
+
+            api.toast({
+              msg: '回复评论成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+          });
+        }
+      },
+      msgValidator: function msgValidator() {
+        var len = $api.trim(this.message).length;
+
+        if (len === 0) {
+          this.notice = '内容不能为空';
+          this.isShowNotice = true;
+          return false;
+        } else if (len > 0 && len < 5) {
+          this.notice = '至少输入5个字';
+          this.isShowNotice = true;
+          return false;
+        }
+
+        return true;
+      },
+      onSubmit: function onSubmit() {
+        var _this5 = this;
+
+        var isValid = this.msgValidator();
+
+        if (isValid) {
+          console.log($api.trim(this.message));
+
+          $ajax_post('appcomment/comment', {
+            user_id: 100000,
+            id: this.vote.id,
+            content: $api.trim(this.message),
+            type: 4
+          }, function (res) {
+            _this5.message = '';
+            _this5.notice = '';
+            _this5.isShowNotice = false;
+
+            _this5.comments.unshift(res.comment_info);
+            _this5.vote.comments++;
+
+            api.toast({
+              msg: '发言成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+          });
+        }
+      },
+      /* toVoteDatailComment() {
+        api.openFrame({
+          name: 'vote_detail_comment_frm',
+          url: './vote_detail_comment_frm.html',
+          rect: {
+            marginTop: api.pageParam.headerH,
+            w: 'auto',
+            h: 'auto'
+          }
+        });
+      } */
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    // tianmaModule = api.require('tianmaModule');
+
+    // tianmaModule.showAlert({
+    //   msg: '123'
+    // })
+  };
+
+  // setTimeout(function () {
+  //   if (typeof api === 'undefined') {
+  //     api = {
+  //       pageParam: {}
+  //     };
+  //     apiready();
+  //   }
+  // }, 500);
+</script>
+
+</html>

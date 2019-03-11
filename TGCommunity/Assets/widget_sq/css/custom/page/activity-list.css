@@ -1,0 +1,67 @@
+/* 
+ * 活动列表页样式
+ */
+
+body {
+  background: #555a6e;
+}
+
+.community-activity .list {
+  padding: 1rem .75rem;
+}
+
+.activity__panel {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-bottom: 1rem;
+  background: #fff;
+}
+
+.activity__panel:last-child {
+  margin-bottom: 0;
+}
+
+.activity__panel:first-child {
+  flex-wrap: wrap
+}
+
+.activity__panel:first-child .activity__thumb,
+.activity__panel:first-child .activity__info {
+  flex: auto;
+  width: 100%;
+  height: auto;
+}
+
+.activity__panel:first-child .activity__thumb img {
+  height: auto;
+}
+
+.activity__panel:first-child .activity__info {
+  padding: .5rem;
+}
+
+.activity__thumb {
+  flex: 3;
+  height: 100px;
+}
+
+.activity__thumb img {
+  height: 100%;
+}
+
+.activity__info {
+  flex: 5;
+  padding: 0 .5rem;
+  line-height: 1.5rem;
+}
+
+.activity__title {
+  font-size: .75rem;
+}
+
+.activity__desc {
+  display: flex;
+  justify-content: space-between;
+  font-size: .6rem;
+}

@@ -1,0 +1,6 @@
+framework module TGCommunity {
+  umbrella header "TGCommunity.h"
+
+  export *
+  module * { export * }
+}

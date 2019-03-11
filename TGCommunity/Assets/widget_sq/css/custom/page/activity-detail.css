@@ -1,0 +1,91 @@
+    /* 
+     * 活动详情页样式
+     */
+    
+    .container {
+      padding: 0 .75rem 1rem;
+      background: #ffffff;
+    }
+
+    .activity-source {
+      padding: 1rem 0;
+    }
+
+    .activity-source div {
+      padding-left: 1rem;
+      border-left: 5px solid #ec4753;
+      font-size: .75rem;
+    }
+
+    .activity-title {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .activity-title__badge {
+      display: inline-block;
+      margin-left: 1rem;
+      padding: 0 2px;
+      background-color: #8ac7d6;
+      border-radius: .2rem;
+      font-size: .6rem;
+      font-weight: normal;
+      color: #fff;
+    }
+
+    .activity-author {
+      padding: 1rem 0 1.2rem;
+    }
+
+    .activity-author .cell {
+      padding: 0;
+      background-color: inherit;
+    }
+
+    .activity-author__avatar {
+      margin-right: .75rem;
+      width: 48px;
+      height: 48px;
+    }
+
+    .activity-author__avatar img {
+      max-height: 100%;
+      border-radius: 50%;
+    }
+
+    .activity-author__nickname {
+      font-size: .7rem;
+      color: #ec4753;
+    }
+
+    .activity-author__time {
+      font-size: .65rem;
+    }
+
+    .activity-author__nickname,
+    .activity-author__time {
+      line-height: normal;
+    }
+
+    .activity-cover {
+      margin-bottom: .5rem;
+    }
+
+    .activity-btn-group {
+      padding: 1rem 0;
+    }
+
+    .activity-btn-group div {
+      padding: .2rem 0;
+      text-align: center;
+      font-size: .75rem;
+      color: #ffffff;
+    }
+
+    .btn-followed {
+      background-color: rgb(102, 102, 102);
+    }
+
+    .btn-follow {
+      background-color: #ec4753;
+    }

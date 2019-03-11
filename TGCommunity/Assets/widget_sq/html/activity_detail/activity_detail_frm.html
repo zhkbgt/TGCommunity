@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/comments.css">
+  <link rel="stylesheet" href="../../css/custom/page/activity-detail.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container" v-cloak>
+    <!-- 活动头部 -->
+    <header class="activity-source">
+      <div>新闻召集令</div>
+    </header>
+    <!-- END -->
+    <!-- 活动标题 -->
+    <section class="activity-title">
+      {{ activity.title }}
+      <span class="activity-title__badge">{{ activity.time_title }}</span>
+    </section>
+    <!-- END -->
+    <!-- 活动发布者信息 -->
+    <section class="activity-author">
+      <div class="cell">
+        <div class="cell__title">
+          <div class="activity-author__avatar">
+            <!-- <img :src="author.avatar ? author.avatar : '../../image/avatar.png'"> -->
+            <v-img :url="author.avatar" err="../../image/avatar.png"></v-img>
+          </div>
+          <div>
+            <div class="activity-author__nickname">{{ author.user_name }}</div>
+            <div class="activity-author__time gray">{{ activity.start_time | M/D-time }} - {{ activity.end_time |
+              M/D-time }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- END -->
+    <!-- 活动封面 -->
+    <section class="activity-cover">
+      <!-- <img :src="activity.cover"> -->
+      <v-img :url="activity.cover" err="../../image/default.png"></v-img>
+    </section>
+    <!-- END -->
+    <!-- 活动内容 -->
+    <section class="activity-content" v-html="activity.context"></section>
+    <section class="activity-btn-group" @click="fnFollow">
+      <div v-if="activity.is_follow" class="btn-followed">&radic; 已关注 ({{ activity.follow }} 人)</div>
+      <div v-else class="btn-follow">+ 关注 ({{ activity.follow }} 人)</div>
+    </section>
+    <!-- END -->
+    <!-- 评论模块 -->
+    <section class="activity-input">
+      <div class="detail-input__head flex-between">
+        <div>发言</div>
+        <div>已有<span>{{ activity.comments }}</span>条发言</div>
+      </div>
+      <div class="detail-input__body">
+        <textarea class="gray" v-model="message" placeholder="你的发言..."></textarea>
+      </div>
+      <div class="detail-input__foot flex-between">
+        <div class="detail-input__notice"><span v-show="isShowNotice">{{ notice }}</span></div>
+        <div class="btn-submit" @click="onSubmit">发布</div>
+      </div>
+    </section>
+    <section class="activity-comments">
+      <div class="comments__head dark">评论</div>
+      <van-list class="activity-comments__list list" v-model="infiniteLoading" :finished="infiniteFinished"
+        :immediate-check="false" :offset="50" @load="onLoad">
+        <div v-for="(el, i) in comments" :key="i" class="comment__panel hairline">
+          <div class="comment__user">
+            <div class="comment__user-avatar">
+              <!-- <img :src="el.head_pic ? el.head_pic : '../../image/avatar.png'"> -->
+              <v-img :url="el.head_pic" err="../../image/avatar.png"></v-img>
+            </div>
+            <div class="comment__user-name">{{ el.user_nickname }}</div>
+          </div>
+          <div class="comment__content dark">{{ el.comment }}</div>
+          <div class="comment__param flex-between">
+            <div>{{ el.timestamp | M/D/h/m-time }}</div>
+            <div class="comment__fn"><span :class="{'red': el.is_like}" @click="fnLike(i)">赞</span>({{ el.like_number
+              }})<span @click="fnShowReplyInput(i, el.id)">回复</span>({{
+              el.answer_list.length }})</div>
+          </div>
+          <div class="comment__answer" v-if="el.answer_list.length">
+            <div v-for="(ans, j) in el.answer_list" :key="j" class="comment__answer-panel hairline">
+              <div class="comment__answer-name" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname}}</div>
+              <div class="comment__answer-name" v-else>{{ ans.user_nickname }}<span>回复了</span>{{ ans.listen_nickname }}</div>
+              <div class="comment__answer-content dark">{{ ans.answer }}</div>
+              <div class="flex-between">
+                <div>{{ ans.create_at | M/D/h/m-time }}</div>
+                <div @click="fnShowReplyInput(i, el.id, ans.user_id)">回复</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+        <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+        <!-- END -->
+        <div v-if="comments.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+      </van-list>
+    </section>
+    <!-- 底部弹出层: 回复评论输入框 -->
+    <van-popup class="comment__answer-input" v-model="isShowReplyInput" position="bottom" :overlay="true">
+      <div class="detail-input__body">
+        <textarea class="gray" v-model="reply" placeholder="输入回复..."></textarea>
+      </div>
+      <div class="detail-input__foot flex-between">
+        <div class="detail-input__notice"><span v-show="isShowReplyNotice">{{ replyNotice }}</span></div>
+        <div class="btn-submit" @click="onCommentReply">回复</div>
+      </div>
+    </van-popup>
+    <!-- END -->
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    comments: [],
+    activity: {},
+    author: {},
+    message: '',
+    notice: '',
+    isShowNotice: false,
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+    reply: '',
+    replyNotice: '',
+    isShowReplyInput: false,
+    isShowReplyNotice: false,
+    replyParams: {
+      index: null,
+      comment_id: null,
+      listen_id: null // 回复评论所依赖参数
+    }
+  };
+  var tianmaModule;
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    watch: {
+      isShowReplyInput: function isShowReplyInput() {
+        if (!this.isShowReplyInput) {
+          this.reply = '';
+          this.replyNotice = '';
+          this.isShowReplyNotice = false;
+        }
+      }
+    },
+    methods: {
+      fetchProps: function fetchProps() {
+        this.activity = _extends({}, api.pageParam.activity);
+        this.author = _extends({}, api.pageParam.author);
+        this.comments = [].concat(_toConsumableArray(api.pageParam.comments.comment_list));
+        this.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
+      },
+      fetchComments: function fetchComments() {
+        var _this = this;
+
+        $ajax_post('appcomment/comment_list', {
+          user_id: 100000,
+          type: 3,
+          id: this.activity.id,
+          page: this.page,
+          page_count: this.pageCount
+        }, function (res) {
+          res.comment_list.forEach(function (el) {
+            _this.comments.push(el);
+          });
+
+          _this.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) _this.infiniteFinished = true; // 已是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+      },
+      onLoad: function onLoad() {
+        this.page++;
+        this.fetchComments();
+      },
+      fnLike: function fnLike(i) {
+        this.comments[i].is_like ? this.onCancelLike(i) : this.onLike(i);
+      },
+      onLike: function onLike(i) {
+        var _this2 = this;
+
+        $ajax_post('appcomment/comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this2.comments[i].is_like = 1;
+          _this2.comments[i].like_number++;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelLike: function onCancelLike(i) {
+        var _this3 = this;
+
+        $ajax_post('appcomment/cancle_comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this3.comments[i].is_like = 0;
+          _this3.comments[i].like_number--;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnFollow: function fnFollow() {
+        this.activity.is_follow ? this.onCancelFollow() : this.onFollow();
+      },
+      onFollow: function onFollow() {
+        var _this4 = this;
+
+        $ajax_post('appact/follow_activity', {
+          user_id: 100000,
+          activity_id: this.activity.id
+        }, function (res) {
+          _this4.activity.is_follow = true;
+          _this4.activity.follow++;
+
+          api.toast({
+            msg: res,
+            duration: 1500,
+            location: 'bottom'
+          });
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelFollow: function onCancelFollow() {
+        var _this5 = this;
+
+        $ajax_post('appact/cancle_follow_activity', {
+          user_id: 100000,
+          activity_id: this.activity.id
+        }, function (res) {
+          _this5.activity.is_follow = false;
+          _this5.activity.follow--;
+
+          api.toast({
+            msg: res,
+            duration: 1500,
+            location: 'bottom'
+          });
+        }, {
+          hideLoading: true
+        });
+      },
+      fnShowReplyInput: function fnShowReplyInput(index, cId) {
+        var lId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        this.isShowReplyInput = true;
+
+        this.replyParams.index = index;
+        this.replyParams.comment_id = cId;
+        this.replyParams.listen_id = lId;
+      },
+      replyValidator: function replyValidator() {
+        var len = $api.trim(this.reply).length;
+
+        if (len === 0) {
+          this.replyNotice = '内容不能为空';
+          this.isShowReplyNotice = true;
+          return false;
+        } else if (len > 0 && len < 5) {
+          this.replyNotice = '至少输入5个字';
+          this.isShowReplyNotice = true;
+          return false;
+        }
+
+        return true;
+      },
+      onCommentReply: function onCommentReply() {
+        var _this6 = this;
+
+        var isValid = this.replyValidator();
+
+        if (isValid) {
+          $ajax_post('appcomment/answer_comment', {
+            user_id: 100000,
+            news_id: this.activity.id,
+            comment_id: this.replyParams.comment_id,
+            listen_id: this.replyParams.listen_id,
+            type: 3,
+            content: $api.trim(this.reply)
+          }, function (res) {
+            _this6.isShowReplyInput = false; // 关闭弹出层
+
+            // 数据重置
+            _this6.reply = '';
+            _this6.replyNotice = '';
+            _this6.isShowReplyNotice = false;
+
+            // 评论数据回写
+            _this6.comments[_this6.replyParams.index].answer_list.push(res.comment_info);
+            _this6.activity.comments++;
+
+            api.toast({
+              msg: '回复评论成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+          });
+        }
+      },
+      msgValidator: function msgValidator() {
+        var len = $api.trim(this.message).length;
+
+        if (len === 0) {
+          this.notice = '内容不能为空';
+          this.isShowNotice = true;
+          return false;
+        } else if (len > 0 && len < 5) {
+          this.notice = '至少输入5个字';
+          this.isShowNotice = true;
+          return false;
+        }
+
+        return true;
+      },
+      onSubmit: function onSubmit() {
+        var _this7 = this;
+
+        var isValid = this.msgValidator();
+
+        if (isValid) {
+          console.log($api.trim(this.message));
+
+          $ajax_post('appcomment/comment', {
+            user_id: 100000,
+            id: this.activity.id,
+            content: $api.trim(this.message),
+            type: 3
+          }, function (res) {
+            _this7.message = '';
+            _this7.notice = '';
+            _this7.isShowNotice = false;
+
+            _this7.comments.unshift(res.comment_info);
+            _this7.activity.comments++;
+
+            api.toast({
+              msg: '发表评论成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+          });
+        }
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    // tianmaModule = api.require('tianmaModule');
+
+    // tianmaModule.showAlert({
+    //   msg: '123'
+    // })
+  };
+</script>
+
+</html>

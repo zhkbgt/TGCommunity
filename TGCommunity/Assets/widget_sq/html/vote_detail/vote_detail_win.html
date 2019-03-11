@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <style>
+    .aui-title.dark {
+      font-size: .75rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <header id="head" class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-btn aui-pull-left" tapmode onclick="onCloseWin()">
+      <img src="../../icon/ico_back.png" width="18">
+    </a>
+    <div class="aui-title dark">投票</div>
+    <a class="aui-btn aui-pull-right" tapmode>
+      <img src="../../icon/ico_export.png" width="18">
+    </a>
+  </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  var isCommentFrameExist = false;
+
+  apiready = function apiready() {
+    api.parseTapmode();
+
+    var header = $api.byId('head');
+    $api.fixStatusBar(header);
+
+    var header_h = $api.offset(header).h;
+
+    var id = api.pageParam.id;
+
+    setTimeout(function () {
+      // 延迟300ms, 避免loadin动画加载失败
+      $ajax_post('appvote/vote_detail', {
+        user_id: 100000,
+        vote_id: id
+      }, function (res) {
+        var vote = _extends({}, res.vote);
+
+        // 获取评论数据
+        $ajax_post('appcomment/comment_list', {
+          user_id: 100000,
+          type: 4,
+          id: vote.id,
+          page: 1,
+          page_count: 10
+        }, function (res) {
+          var comments = _extends({}, res);
+
+          api.openFrame({
+            name: 'vote_detail_frm',
+            url: './vote_detail_frm.html',
+            bounces: false,
+            rect: {
+              x: 0,
+              y: header_h,
+              w: 'auto',
+              h: 'auto'
+            },
+            pageParam: {
+              vote: vote,
+              comments: comments,
+              headerH: header_h
+            }
+          });
+        });
+      });
+    }, 300);
+
+    /* 控制系统级后退 */
+    // 禁止右滑返回 iOS
+    // api.setWinAttr({
+    //   slidBackEnabled: false
+    // });
+
+    // // 安卓监听返回键
+    // api.addEventListener({
+    //   name: 'keyback'
+    // }, function (ret, err) {
+    //   if (ret) {
+    //     onCloseWin();
+    //   }
+    // });
+    /*  */
+  };
+
+  function commentFrameCallback() {
+    console.log('comment frame exist');
+    isCommentFrameExist = true;
+  }
+
+  function onCloseWin() {
+    // if (isCommentFrameExist) {
+    //   api.closeFrame({
+    //     name: 'vote_detail_comment_frm'
+    //   });
+    //   isCommentFrameExist = false;
+    // } else {
+    api.closeWin();
+    // }
+  }
+</script>
+
+</html>

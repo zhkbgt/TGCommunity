@@ -1,0 +1,122 @@
+/* 
+ * 活动详情页、投票详情页评论列表和输入框公用样式
+ */
+
+
+.comments__head {
+  padding: .5rem 0;
+  border-bottom: 1px solid rgb(51, 51, 51);
+}
+
+.comment__panel {
+  position: relative;
+  padding: .5rem 0;
+}
+
+.comment__user {
+  display: flex;
+  align-items: center;
+}
+
+.comment__user-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.comment__user-avatar img {
+  max-height: 100%;
+  border-radius: 50%;
+}
+
+.comment__user-name {
+  margin-left: .5rem;
+  font-size: .75rem;
+  color: #2fa9d1;
+}
+
+.comment__content {
+  padding-top: 1.5rem;
+  font-size: .7rem;
+}
+
+.comment__param {
+  padding: .5rem 0;
+  font-size: .6rem;
+  color: #a7a7a7;
+}
+
+.comment__fn span {
+  display: inline-block;
+  margin-left: .5rem;
+}
+
+.comment__fn span:first-child {
+  margin-right: .5rem;
+}
+
+.comment__answer {
+  padding: 0 .75rem;
+  background-color: #f6f6f6;
+}
+
+.comment__answer-panel {
+  position: relative;
+  padding: .5rem 0;
+  font-size: .7rem;
+}
+
+.comment__answer-name {
+  color: #2fa9d1;
+}
+
+.comment__answer-name span:first-child {
+  margin: 0 .5rem;
+  font-size: .65rem;
+  color: #a7a7a7;
+}
+
+.comment__answer-content {
+  padding: .5rem 0;
+}
+
+.comment__answer-panel .flex-between {
+  font-size: .6rem;
+  color: #a7a7a7;
+}
+
+.comment__answer-input {
+  padding: .5rem .75rem;
+}
+
+.detail-input__head,
+.detail-input__foot {
+  font-size: .75rem;
+  color: rgb(51, 51, 51);
+}
+
+.detail-input__head span {
+  color: #ec4753;
+}
+
+.detail-input__body {
+  padding: .5rem 0;
+}
+
+.detail-input__body textarea {
+  width: 100%;
+  height: 3.6rem;
+  padding: .2rem .2rem 0;
+  border: 1px solid #cccccc;
+  font-size: .6rem;
+}
+
+.detail-input__notice {
+  font-size: .65rem;
+  color: #ff4444;
+}
+
+.btn-submit {
+  padding: .3rem .5rem;
+  background-color: #ec4753;
+  color: #ffffff;
+}

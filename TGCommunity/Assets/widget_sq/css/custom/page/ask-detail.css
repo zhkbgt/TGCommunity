@@ -1,0 +1,224 @@
+/* 
+ * 好问详情页样式
+ */
+
+.ask-info {
+  padding-bottom: .75rem;
+  background-color: #fff;
+}
+
+.ask-info__title,
+.ask-info__author,
+.ask-info__time,
+.ask-info__content {
+  padding: .75rem .75rem 0;
+}
+
+.ask-info__title {
+  font-size: .9rem;
+}
+
+.ask-info__author {
+  font-size: .75rem;
+}
+
+.ask-info__time {
+  font-size: .6rem;
+  color: #999;
+}
+
+/* .ask-info__content-text {
+
+    } */
+.ask-submit {
+  background-color: #1d9f83;
+  text-align: center;
+  line-height: 2.25rem;
+  color: #fff;
+}
+
+.ask-speech__head {
+  padding: 1rem .5rem;
+  background-color: #fff;
+  font-size: .6rem;
+}
+
+.ask-speech__head-nav {
+  font-size: 0;
+}
+
+.ask-speech__head-nav li {
+  display: inline-block;
+  padding: .2rem .3rem;
+  border: 1px solid #1d9f83;
+  font-size: .65rem;
+  color: #1d9f83;
+}
+
+.ask-speech__head-nav li:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.ask-speech__head-nav li:last-child {
+  border-left: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.ask-speech__head-nav li.active {
+  background-color: #1d9f83;
+  color: #fff;
+}
+
+.ask-speech__list.top-hairline::after {
+  border-color: #999999;
+}
+
+.ask-speech__panel {
+  padding: .5rem .5rem 0;
+  background-color: #fff;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.ask-speech__panel:not(:last-child) {
+  margin-bottom: .75rem;
+}
+
+.ask-speech__info {
+  padding-bottom: .5rem;
+}
+
+.ask-speech__user {
+  display: flex;
+  align-items: center;
+}
+
+.ask-speech__user-avatar {
+  margin-right: .75rem;
+  width: 40px;
+  height: 40px;
+}
+
+.ask-speech__user-avatar img {
+  height: 100%;
+  border-radius: 50%;
+}
+
+.ask-speech__user-name {
+  font-size: .65rem;
+}
+
+.ask-speech__user-icon {
+  display: flex;
+  align-items: center;
+  font-size: .65rem;
+  color: #1d9f83;
+}
+
+.ask-speech__user-icon img {
+  margin-left: .25rem;
+  width: 1rem;
+}
+
+.ask-speech__follow {
+  padding-top: .5rem;
+  font-size: .6rem;
+  color: #9c9c9c;
+}
+
+.ask-speech__content {
+  margin-top: .5rem;
+}
+
+.ask-speech__content-text {
+  line-height: 1.5;
+  font-size: .7rem;
+}
+
+.ask-speech__time {
+  font-size: .6rem;
+  color: #9c9c9c;
+}
+
+.ask-speech__reply {
+  position: relative;
+  padding: .5rem 0;
+}
+
+.ask-speech__reply.top-hairline::after {
+  border-color: #f0f0f0;
+}
+
+.ask-speech__reply-answer {
+  margin-top: .5rem;
+  padding: 0 .75rem;
+  background-color: #f6f6f6;
+}
+
+.ask-speech__reply-answer-panel {
+  position: relative;
+  padding: .5rem 0;
+  font-size: .7rem;
+}
+
+.ask-speech__reply-answer-name {
+  color: #2fa9d1;
+}
+
+.ask-speech__reply-answer-name span:first-child {
+  margin: 0 .5rem;
+  font-size: .65rem;
+  color: #a7a7a7;
+}
+
+.ask-speech__reply-answer-content {
+  padding: .5rem 0;
+}
+
+.ask-speech__reply-answer-panel .flex-between {
+  font-size: .6rem;
+  color: #a7a7a7;
+}
+
+.btn-submit {
+  padding: .3rem .5rem;
+  background-color: #1d9f83;
+  color: #ffffff;
+}
+
+.activity-input__body {
+  padding: .5rem 0;
+}
+
+.activity-input__body textarea {
+  width: 100%;
+  height: 3.6rem;
+  padding: .2rem .2rem 0;
+  border: 1px solid #cccccc;
+  font-size: .6rem;
+}
+
+.activity-input__foot {
+  font-size: .75rem;
+  color: rgb(51, 51, 51);
+}
+
+.comment__answer-input {
+  padding: .5rem .75rem;
+}
+
+.collapse-content {
+  max-height: 5rem;
+  overflow-y: hidden;
+}
+
+.collapse-icon {
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+}
+
+.unclasp {
+  max-height: fit-content;
+}

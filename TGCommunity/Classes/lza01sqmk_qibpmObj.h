@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <TAPI/TAPI.h>
-#import <TGCommunity/lza01sqmk_qibpmVC.h>
+#import <TGNews/TGNews.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface lza01sqmk_qibpmObj : NSObject

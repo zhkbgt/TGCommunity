@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGCommunity'
-  s.version          = '0.1.3'
+  s.version          = '0.1.5'
   s.summary          = 'Aaaaa'
 
 # This description is used to generate tags and improve search results.
@@ -42,10 +42,10 @@ TODO: Add long description of the pod here.aaaaa
 
   s.vendored_frameworks = 'TGCommunity.framework'
 
-  s.libraries = 'icucore', 'c++', 'bsm', 'z'
-  s.frameworks = 'UIKit', 'MapKit', 'WebKit'
+#  s.libraries = 'icucore', 'c++', 'bsm', 'z'
+#  s.frameworks = 'UIKit', 'MapKit', 'WebKit'
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
    #s.frameworks = 'UIKit', 'MapKit','WebKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency  'TAPI'
 end

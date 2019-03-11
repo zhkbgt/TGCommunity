@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <TAPI/APIWindowContainer.h>
+#import <TGNews/APIWindowContainer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

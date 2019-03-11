@@ -18,17 +18,3 @@ FOUNDATION_EXPORT const unsigned char TGCommunityVersionString[];
 
 #import <TGCommunity/lza01sqmk_qibpmObj.h>
 #import <TGCommunity/lza01sqmk_qibpmVC.h>
-#import <TGCommunity/APIWindowContainer.h>
-#import <TGCommunity/APIWidgetContainer.h>
-#import <TGCommunity/UZWidget.h>
-#import <TGCommunity/NSDictionaryUtils.h>
-#import <TGCommunity/APIManager.h>
-#import <TGCommunity/APIEvent.h>
-#import <TGCommunity/UZAppDelegate.h>
-#import <TGCommunity/APIUpdateManager.h>
-#import <TGCommunity/UZModule.h>
-#import <TGCommunity/APIWebView.h>
-#import <TGCommunity/APIScriptMessage.h>
-#import <TGCommunity/APIModuleMethod.h>
-#import <TGCommunity/UZAppUtils.h>
-#import <TGCommunity/TGCommunity.h>
